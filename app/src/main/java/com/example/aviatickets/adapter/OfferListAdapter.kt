@@ -2,23 +2,50 @@ package com.example.aviatickets.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aviatickets.R
 import com.example.aviatickets.databinding.ItemOfferBinding
 import com.example.aviatickets.model.entity.Offer
 
+
 class OfferListAdapter : RecyclerView.Adapter<OfferListAdapter.ViewHolder>() {
 
     private val items: ArrayList<Offer> = arrayListOf()
 
+//    fun setItems(offerList: List<Offer>) {
+//        items.clear()
+//        items.addAll(offerList)
+//        notifyDataSetChanged()
+//
+//        /**
+//         * think about recycler view optimization using diff.util
+//         */
+//    }
     fun setItems(offerList: List<Offer>) {
+        val diffResult = DiffUtil.calculateDiff(
+            OfferDiffUtilCallback(items, offerList)
+        )
         items.clear()
         items.addAll(offerList)
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
+    }
+    class OfferDiffUtilCallback(
+        private val oldList: List<Offer>,
+        private val newList: List<Offer>
+    ) : DiffUtil.Callback() {
 
-        /**
-         * think about recycler view optimization using diff.util
-         */
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
